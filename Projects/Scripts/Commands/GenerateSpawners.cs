@@ -97,22 +97,29 @@ namespace Server.Commands
       if (!spawners.Any())
         return;
 
-      for (int x = 0; x > -10; x--)
+      foreach(var spawner in spawners)
       {
-        for (int y = 0; y > -10; y--)
-        {
-          location.X += x;
-          location.Y += y;
-          location.Z = map.GetAverageZ(location.X, location.Y);
-
-          spawners = map.GetItemsInRange<Spawner>(location, 0);
-
-          if (spawners.Any())
-            continue;
-
-          return;
-        }
+        spawner.Delete();
       }
+
+      //for (int x = 0; x > -10; x--)
+      //{
+      //  for (int y = 0; y > -10; y--)
+      //  {
+      //    location.X += x;
+      //    location.Y += y;
+      //    location.Z = map.GetAverageZ(location.X, location.Y);
+
+      //    spawners = map.GetItemsInRange<Spawner>(location, 0);
+
+      //    if (spawners.Any())
+      //      continue;
+
+      //    return;
+      //  }
+      //}
+
+      spawners.Free();
     }
   }
 }
