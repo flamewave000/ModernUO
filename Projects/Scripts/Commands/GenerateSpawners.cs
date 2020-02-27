@@ -1,10 +1,9 @@
+using Newtonsoft.Json;
+using Server.Mobiles;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using Newtonsoft.Json;
-using Server;
-using Server.Mobiles;
 
 namespace Server.Commands
 {
@@ -12,8 +11,8 @@ namespace Server.Commands
   {
     public static void Initialize()
     {
-      CommandSystem.Register("GenerateSpawners", AccessLevel.Administrator, GenenerateSpawners_OnCommand);
       CommandSystem.Register("GenSpawns", AccessLevel.Administrator, GenenerateSpawners_OnCommand);
+      CommandSystem.Register("GenerateSpawners", AccessLevel.Administrator, GenenerateSpawners_OnCommand);
     }
 
     private static void GenenerateSpawners_OnCommand(CommandEventArgs e)
@@ -24,7 +23,7 @@ namespace Server.Commands
         return;
       }
 
-      string fullPath = "Spawns/" + e.Arguments[0].ToLower() + ".json";
+      string fullPath = Path.Combine("Data", "Spawns", e.Arguments[0].ToLower() + ".json");
 
       if (!File.Exists(fullPath))
       {
@@ -64,6 +63,7 @@ namespace Server.Commands
         Spawner spawner = new Spawner
         {
           HomeRange = definition.HomeRange,
+          WalkingRange = definition.WalkingRange,
           MinDelay = definition.MinDelay,
           MaxDelay = definition.MaxDelay,
           Running = false
@@ -93,14 +93,14 @@ namespace Server.Commands
     private static void CheckLocation(ref Point3D location, Map map)
     {
       IPooledEnumerable<Spawner> spawners = map.GetItemsInRange<Spawner>(location, 0);
-
-      if (!spawners.Any())
-        return;
-
-      foreach(var spawner in spawners)
+      spawners.All(x =>
       {
-        spawner.Delete();
-      }
+        x.Delete();
+        return true;
+      });
+      spawners.Free();
+      //if (!spawners.Any())
+      //  return;
 
       //for (int x = 0; x > -10; x--)
       //{
@@ -118,8 +118,6 @@ namespace Server.Commands
       //    return;
       //  }
       //}
-
-      spawners.Free();
     }
   }
 }
